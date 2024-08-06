@@ -1,1 +1,41 @@
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 
+namespace Bootstrapper
+{
+    internal class Program
+    {
+        private static async Task Main(string[] args)
+        {
+            string url = "https://example.com/file.zip"; // URL of the file to download
+            string destinationPath = "file.zip"; // Path where the file will be saved
+
+            try
+            {
+                Console.WriteLine("Downloading file...");
+
+                using (HttpClient client = new HttpClient())
+                {
+                    using (HttpResponseMessage response = await client.GetAsync(url))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
+
+                        await Task.Run(() => File.WriteAllBytes(destinationPath, fileBytes));
+                    }
+                }
+
+                Console.WriteLine("Download complete.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine();
+        }
+    }
+}
